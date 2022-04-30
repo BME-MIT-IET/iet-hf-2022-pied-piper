@@ -15,6 +15,7 @@
 
 package com.complexible.pinto;
 
+import com.complexible.common.base.Bool;
 import com.complexible.common.base.Dates;
 import com.complexible.common.base.Option;
 import com.complexible.common.base.Options;
@@ -732,6 +733,7 @@ public final class RDFMapper {
 			}
 			else {
 				LOGGER.info("Could not find type for collection %s", aClass);
+
 			}
 		}
 		else if (!Classes.isInstantiable(aClass) || !Classes.hasDefaultConstructor(aClass)) {
@@ -769,39 +771,39 @@ public final class RDFMapper {
 
 			return mValueFactory.createLiteral(theObj.toString(), aURI);
 		}
-		else if (Boolean.class.isInstance(theObj)) {
-			return mValueFactory.createLiteral(Boolean.class.cast(theObj));
+		else if (theObj instanceof Boolean) {
+			return mValueFactory.createLiteral((Boolean) theObj);
 		}
-		else if (Integer.class.isInstance(theObj)) {
-			return mValueFactory.createLiteral(Integer.class.cast(theObj).intValue());
+		else if (theObj instanceof Integer) {
+			return mValueFactory.createLiteral((Integer) theObj);
 		}
-		else if (Long.class.isInstance(theObj)) {
-			return mValueFactory.createLiteral(Long.class.cast(theObj).longValue());
+		else if (theObj instanceof Long) {
+			return mValueFactory.createLiteral((Long) theObj);
 		}
-		else if (Short.class.isInstance(theObj)) {
-			return mValueFactory.createLiteral(Short.class.cast(theObj).shortValue());
+		else if (theObj instanceof Short) {
+			return mValueFactory.createLiteral((Short) theObj);
 		}
-		else if (Double.class.isInstance(theObj)) {
-			return mValueFactory.createLiteral(Double.class.cast(theObj));
+		else if (theObj instanceof Double) {
+			return mValueFactory.createLiteral((Double) theObj);
 		}
-		else if (Float.class.isInstance(theObj)) {
-			return mValueFactory.createLiteral(Float.class.cast(theObj).floatValue());
+		else if (theObj instanceof Float) {
+			return mValueFactory.createLiteral((Float) theObj);
 		}
-		else if (Date.class.isInstance(theObj)) {
-			return mValueFactory.createLiteral(Dates2.datetimeISO(Date.class.cast(theObj)), XMLSchema.DATETIME);
+		else if (theObj instanceof Date) {
+			return mValueFactory.createLiteral(Dates2.datetimeISO((Date) theObj), XMLSchema.DATETIME);
 		}
-		else if (String.class.isInstance(theObj)) {
+		else if (theObj instanceof String) {
 			if (theAnnotation != null && !theAnnotation.language().equals("")) {
-				return mValueFactory.createLiteral(String.class.cast(theObj), theAnnotation.language());
+				return mValueFactory.createLiteral((String) theObj, theAnnotation.language());
 			}
 			else {
-				return mValueFactory.createLiteral(String.class.cast(theObj), XMLSchema.STRING);
+				return mValueFactory.createLiteral((String) theObj, XMLSchema.STRING);
 			}
 		}
-		else if (Character.class.isInstance(theObj)) {
-			return mValueFactory.createLiteral(String.valueOf(Character.class.cast(theObj)), XMLSchema.STRING);
+		else if (theObj instanceof Character) {
+			return mValueFactory.createLiteral(String.valueOf((Character) theObj), XMLSchema.STRING);
 		}
-		else if (java.net.URI.class.isInstance(theObj)) {
+		else if (theObj instanceof java.net.URI) {
 			return mValueFactory.createLiteral(theObj.toString(), XMLSchema.ANYURI);
 		}
 
