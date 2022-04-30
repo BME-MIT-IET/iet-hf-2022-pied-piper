@@ -204,13 +204,9 @@ public final class RDFMapper {
 
 	private static boolean isIgnored(final PropertyDescriptor thePropertyDescriptor) {
 		// we'll ignore getClass() on the bean
-		if (thePropertyDescriptor.getName().equals("class")
-		    && thePropertyDescriptor.getReadMethod().getDeclaringClass() == Object.class
-		    && thePropertyDescriptor.getReadMethod().getReturnType().equals(Class.class)) {
-			return  true;
-		}
-
-		return false;
+		return thePropertyDescriptor.getName().equals("class")
+				&& thePropertyDescriptor.getReadMethod().getDeclaringClass() == Object.class
+				&& thePropertyDescriptor.getReadMethod().getReturnType().equals(Class.class);
 	}
 
 	/**
@@ -625,7 +621,7 @@ public final class RDFMapper {
 				return new Date(Long.parseLong(aLit.getLabel()));
 			}
 			else {
-				throw new RuntimeException("Unsupported or unknown literal datatype: " + aLit);
+				throw new UnkonwnTypeLiteralException("Unsupported or unknown literal datatype: " + aLit);
 			}
 		}
 		else if (theDescriptor != null && Enum.class.isAssignableFrom(theDescriptor.getPropertyType())) {
@@ -673,6 +669,10 @@ public final class RDFMapper {
 	}
 
 	private Class pinpointClass(final Model theGraph, final Resource theResource, final PropertyDescriptor theDescriptor) {
+		if(theDescriptor == null) {
+			return null;
+		}
+
 		Class aClass = theDescriptor.getPropertyType();
 
 		if (Collection.class.isAssignableFrom(aClass)) {
@@ -682,7 +682,7 @@ public final class RDFMapper {
 			Type[] aTypes = null;
 
 			if (theDescriptor.getReadMethod().getGenericParameterTypes().length > 0) {
-				// should this be the return type? eg new Type[] { theDescriptor.getReadMethod().getGenericReturnType() };
+				// should this be the return type? 
 				aTypes = theDescriptor.getReadMethod().getGenericParameterTypes();
 			}
 			else if (theDescriptor.getWriteMethod().getGenericParameterTypes().length > 0) {
@@ -733,8 +733,8 @@ public final class RDFMapper {
 				}
 			}
 			else {
-				LOGGER.info("Could not find type for collection %s", aClass);
-
+				String logMessage = String.format("Could not find type for collection %s", aClass);
+				LOGGER.info(logMessage);
 			}
 		}
 		else if (!Classes.isInstantiable(aClass) || !Classes.hasDefaultConstructor(aClass)) {
@@ -743,14 +743,9 @@ public final class RDFMapper {
 			final Iterable<Resource> aRdfTypes = Models2.getTypes(theGraph, theResource);
 			for (Resource aType : aRdfTypes) {
 				Class<?> aMappedClass = mMappings.get(aType);
-				if (aMappedClass != null) {
-					if (aCurr == null) {
-						aCurr = aMappedClass;
-					}
-					else if (aCurr.isAssignableFrom(aMappedClass)) {
-						// we want the most specific class, that's likely to be what's instantiable
-						aCurr = aMappedClass;
-					}
+				if (aMappedClass != null && (aCurr == null || aCurr.isAssignableFrom(aMappedClass))) {
+					// we want the most specific class, that's likely to be what's instantiable
+					aCurr = aMappedClass;
 				}
 			}
 
@@ -1184,7 +1179,7 @@ public final class RDFMapper {
 				// default constructor, which is true of all the core maps.
 				return (Map) aType.getDeclaredConstructor().newInstance();
 			}
-			catch (Throwable e) {
+			catch (Exception e) {
 				LOGGER.warn("{} uses a map type, but it cannot be instantiated, using a default LinkedHashMap", theDescriptor);
 			}
 
@@ -1214,7 +1209,7 @@ public final class RDFMapper {
 				// default constructor, which is true of all the core collections.
 				return (Collection) aType.getDeclaredConstructor().newInstance();
 			}
-			catch (Throwable e) {
+			catch (Exception e) {
 				if (List.class.isAssignableFrom(aType)) {
 					return Lists.newArrayList();
 				}
@@ -1231,7 +1226,7 @@ public final class RDFMapper {
 				}
 				else {
 					// what else could there be?
-					throw new RuntimeException("Unknown or unsupported collection type for a field: " + aType);
+					throw new UnkonwnTypeCollectionException("Unknown or unsupported collection type for a field: " + aType);
 				}
 			}
 		}

@@ -1,7 +1,7 @@
 lib
 build
 .DS_Store
-
+.idea
 *.iml
 *.ipr
 *.iws
