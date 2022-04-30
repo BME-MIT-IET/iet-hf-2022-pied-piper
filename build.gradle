@@ -2,9 +2,9 @@ apply plugin: "idea"
 apply plugin: "java"
 apply plugin: "maven"
 
-task wrapper(type: Wrapper) {
-	gradleVersion = '2.0'
-	distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
+wrapper{
+	gradleVersion = '5.0'
+	distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
 sourceSets {
