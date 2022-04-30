@@ -31,7 +31,6 @@ import com.complexible.pinto.annotations.Iri;
 import com.complexible.pinto.annotations.RdfId;
 import com.complexible.pinto.annotations.RdfProperty;
 import com.complexible.pinto.annotations.RdfsClass;
-import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
@@ -69,6 +68,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -158,7 +158,7 @@ public final class RDFMapper {
 
 	private <T> T newInstance(final Class<T> theClass) {
 		try {
-			return theClass.newInstance();
+			return theClass.getDeclaredConstructor().newInstance();
 		}
 		catch (Exception e) {
 			throw new RDFMappingException(String.format("Could not create an instance of %s, it does not have a default constructor", theClass));
@@ -293,7 +293,8 @@ public final class RDFMapper {
 					final Value aKey = theGraph.stream().filter(Statements.subjectIs((Resource) aMapEntry).and(Statements.predicateIs(KEY))).map(Statement::getObject).findFirst().orElse(null);
 					final Value aValue = theGraph.stream().filter(Statements.subjectIs((Resource) aMapEntry).and(Statements.predicateIs(VALUE))).map(Statement::getObject).findFirst().orElse(null);
 
-					Object aKeyObj = null, aValueObj = null;
+					Object aKeyObj = null;
+					Object aValueObj = null;
 
 					if (aKey instanceof Literal) {
 						// ok to pass null here, it won't be used
@@ -908,7 +909,7 @@ public final class RDFMapper {
 						continue;
 					}
 
-					aFunc.putString(aValue.toString(), Charsets.UTF_8);
+					aFunc.putString(aValue.toString(), StandardCharsets.UTF_8);
 				}
 				catch (Exception e) {
 					Throwables.propagateIfInstanceOf(e, RDFMappingException.class);
@@ -935,7 +936,7 @@ public final class RDFMapper {
 		else {
 			if (aId == null) {
 				aId = mValueFactory.createIRI(mDefaultNamespace + Hashing.md5().newHasher()
-				                                                         .putString(theT.toString(), Charsets.UTF_8)
+				                                                         .putString(theT.toString(), StandardCharsets.UTF_8)
 				                                                         .hash().toString());
 			}
 
@@ -1181,7 +1182,7 @@ public final class RDFMapper {
 			try {
 				// try creating a new instance.  this will work if they've specified a concrete type *and* it has a
 				// default constructor, which is true of all the core maps.
-				return (Map) aType.newInstance();
+				return (Map) aType.getDeclaredConstructor().newInstance();
 			}
 			catch (Throwable e) {
 				LOGGER.warn("{} uses a map type, but it cannot be instantiated, using a default LinkedHashMap", theDescriptor);
@@ -1211,7 +1212,7 @@ public final class RDFMapper {
 			try {
 				// try creating a new instance.  this will work if they've specified a concrete type *and* it has a
 				// default constructor, which is true of all the core collections.
-				return (Collection) aType.newInstance();
+				return (Collection) aType.getDeclaredConstructor().newInstance();
 			}
 			catch (Throwable e) {
 				if (List.class.isAssignableFrom(aType)) {
