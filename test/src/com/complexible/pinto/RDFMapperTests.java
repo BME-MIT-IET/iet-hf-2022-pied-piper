@@ -54,8 +54,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * <p></p>
@@ -306,7 +305,7 @@ public class RDFMapperTests {
 	}
 
 	@Test
-	@Ignore
+	@Ignore("Not Implemented")
 	public void testURIMapping() throws Exception {
 		// alternative to RdfsClass, verify that if you specify a type URI -> class mapping it is used
 		// test 1, that the rdf:type is included in a top level class
@@ -400,7 +399,7 @@ public class RDFMapperTests {
 
 		Model aGraph = RDFMapper.create().writeValue(aPerson);
 
-		assertTrue(aPerson.id() != null);
+		assertNotNull(aPerson.id());
 
 		assertEquals(1, aGraph.size());
 
@@ -466,7 +465,7 @@ public class RDFMapperTests {
 	}
 
 	@Test
-	@Ignore
+	@Ignore("Not Implemented")
 	public void testProxyCreation() throws Exception {
 
 		//		assertTrue(aResult instanceof Identifiable);
@@ -643,37 +642,37 @@ public class RDFMapperTests {
 	}
 
 	@Test
-	@Ignore
+	@Ignore("Not Implemented")
 	public void testReadEnumSet() throws Exception {
 	}
 
 	@Test
-	@Ignore
+	@Ignore("Not Implemented")
 	public void testWriteEnumSet() throws Exception {
 	}
 
 	@Test
-	@Ignore
+	@Ignore("Not Implemented")
 	public void testReadCustomCollectionMapping() throws Exception {
 	}
 
 	@Test
-	@Ignore
+	@Ignore("Not Implemented")
 	public void testWriteWithLangTag() throws Exception {
 	}
 
 	@Test
-	@Ignore
+	@Ignore("Not Implemented")
 	public void testReadWithLangTag() throws Exception {
 	}
 
 	@Test(expected = RDFMappingException.class)
-	@Ignore
+	@Ignore("Not Implemented")
 	public void testMultipleValuesForNonIterableProperty() throws Exception {
 	}
 
 	@Test(expected = RDFMappingException.class)
-	@Ignore
+	@Ignore("Not Implemented")
 	public void testCharBeanTypeWithLongString() throws Exception {
 	}
 
@@ -720,9 +719,9 @@ public class RDFMapperTests {
 
 		assertEquals(UUID.fromString("0110f311-964b-440d-b772-92c621c5d1e4"), aResult);
 	}
-	//TODO nem megy
-	/*
-	* @Test
+
+	@Test
+	@Ignore("Failing Test")
 	public void testWriteMap() throws Exception {
 		final ClassWithMap aObj = new ClassWithMap();
 
@@ -742,9 +741,6 @@ public class RDFMapperTests {
 		boolean tmp = Models.isomorphic(aGraph, aGraph);
 		assertTrue(tmp);
 	}
-	*
-	* */
-
 
 	@Test
 	public void testReadMap() throws Exception {

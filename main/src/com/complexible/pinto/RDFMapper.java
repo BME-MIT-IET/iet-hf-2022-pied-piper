@@ -15,6 +15,7 @@
 
 package com.complexible.pinto;
 
+import com.complexible.common.base.Bool;
 import com.complexible.common.base.Dates;
 import com.complexible.common.base.Option;
 import com.complexible.common.base.Options;
@@ -30,7 +31,6 @@ import com.complexible.pinto.annotations.Iri;
 import com.complexible.pinto.annotations.RdfId;
 import com.complexible.pinto.annotations.RdfProperty;
 import com.complexible.pinto.annotations.RdfsClass;
-import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
@@ -68,6 +68,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -157,7 +158,7 @@ public final class RDFMapper {
 
 	private <T> T newInstance(final Class<T> theClass) {
 		try {
-			return theClass.newInstance();
+			return theClass.getDeclaredConstructor().newInstance();
 		}
 		catch (Exception e) {
 			throw new RDFMappingException(String.format("Could not create an instance of %s, it does not have a default constructor", theClass));
@@ -203,13 +204,9 @@ public final class RDFMapper {
 
 	private static boolean isIgnored(final PropertyDescriptor thePropertyDescriptor) {
 		// we'll ignore getClass() on the bean
-		if (thePropertyDescriptor.getName().equals("class")
-		    && thePropertyDescriptor.getReadMethod().getDeclaringClass() == Object.class
-		    && thePropertyDescriptor.getReadMethod().getReturnType().equals(Class.class)) {
-			return  true;
-		}
-
-		return false;
+		return thePropertyDescriptor.getName().equals("class")
+				&& thePropertyDescriptor.getReadMethod().getDeclaringClass() == Object.class
+				&& thePropertyDescriptor.getReadMethod().getReturnType().equals(Class.class);
 	}
 
 	/**
@@ -292,7 +289,8 @@ public final class RDFMapper {
 					final Value aKey = theGraph.stream().filter(Statements.subjectIs((Resource) aMapEntry).and(Statements.predicateIs(KEY))).map(Statement::getObject).findFirst().orElse(null);
 					final Value aValue = theGraph.stream().filter(Statements.subjectIs((Resource) aMapEntry).and(Statements.predicateIs(VALUE))).map(Statement::getObject).findFirst().orElse(null);
 
-					Object aKeyObj = null, aValueObj = null;
+					Object aKeyObj = null;
+					Object aValueObj = null;
 
 					if (aKey instanceof Literal) {
 						// ok to pass null here, it won't be used
@@ -623,7 +621,7 @@ public final class RDFMapper {
 				return new Date(Long.parseLong(aLit.getLabel()));
 			}
 			else {
-				throw new RuntimeException("Unsupported or unknown literal datatype: " + aLit);
+				throw new UnkonwnTypeLiteralException("Unsupported or unknown literal datatype: " + aLit);
 			}
 		}
 		else if (theDescriptor != null && Enum.class.isAssignableFrom(theDescriptor.getPropertyType())) {
@@ -671,6 +669,10 @@ public final class RDFMapper {
 	}
 
 	private Class pinpointClass(final Model theGraph, final Resource theResource, final PropertyDescriptor theDescriptor) {
+		if(theDescriptor == null) {
+			return null;
+		}
+
 		Class aClass = theDescriptor.getPropertyType();
 
 		if (Collection.class.isAssignableFrom(aClass)) {
@@ -680,7 +682,7 @@ public final class RDFMapper {
 			Type[] aTypes = null;
 
 			if (theDescriptor.getReadMethod().getGenericParameterTypes().length > 0) {
-				// should this be the return type? eg new Type[] { theDescriptor.getReadMethod().getGenericReturnType() };
+				// should this be the return type? 
 				aTypes = theDescriptor.getReadMethod().getGenericParameterTypes();
 			}
 			else if (theDescriptor.getWriteMethod().getGenericParameterTypes().length > 0) {
@@ -731,7 +733,8 @@ public final class RDFMapper {
 				}
 			}
 			else {
-				LOGGER.info("Could not find type for collection %s", aClass);
+				String logMessage = String.format("Could not find type for collection %s", aClass);
+				LOGGER.info(logMessage);
 			}
 		}
 		else if (!Classes.isInstantiable(aClass) || !Classes.hasDefaultConstructor(aClass)) {
@@ -740,14 +743,9 @@ public final class RDFMapper {
 			final Iterable<Resource> aRdfTypes = Models2.getTypes(theGraph, theResource);
 			for (Resource aType : aRdfTypes) {
 				Class<?> aMappedClass = mMappings.get(aType);
-				if (aMappedClass != null) {
-					if (aCurr == null) {
-						aCurr = aMappedClass;
-					}
-					else if (aCurr.isAssignableFrom(aMappedClass)) {
-						// we want the most specific class, that's likely to be what's instantiable
-						aCurr = aMappedClass;
-					}
+				if (aMappedClass != null && (aCurr == null || aCurr.isAssignableFrom(aMappedClass))) {
+					// we want the most specific class, that's likely to be what's instantiable
+					aCurr = aMappedClass;
 				}
 			}
 
@@ -769,39 +767,39 @@ public final class RDFMapper {
 
 			return mValueFactory.createLiteral(theObj.toString(), aURI);
 		}
-		else if (Boolean.class.isInstance(theObj)) {
-			return mValueFactory.createLiteral(Boolean.class.cast(theObj));
+		else if (theObj instanceof Boolean) {
+			return mValueFactory.createLiteral((Boolean) theObj);
 		}
-		else if (Integer.class.isInstance(theObj)) {
-			return mValueFactory.createLiteral(Integer.class.cast(theObj).intValue());
+		else if (theObj instanceof Integer) {
+			return mValueFactory.createLiteral((Integer) theObj);
 		}
-		else if (Long.class.isInstance(theObj)) {
-			return mValueFactory.createLiteral(Long.class.cast(theObj).longValue());
+		else if (theObj instanceof Long) {
+			return mValueFactory.createLiteral((Long) theObj);
 		}
-		else if (Short.class.isInstance(theObj)) {
-			return mValueFactory.createLiteral(Short.class.cast(theObj).shortValue());
+		else if (theObj instanceof Short) {
+			return mValueFactory.createLiteral((Short) theObj);
 		}
-		else if (Double.class.isInstance(theObj)) {
-			return mValueFactory.createLiteral(Double.class.cast(theObj));
+		else if (theObj instanceof Double) {
+			return mValueFactory.createLiteral((Double) theObj);
 		}
-		else if (Float.class.isInstance(theObj)) {
-			return mValueFactory.createLiteral(Float.class.cast(theObj).floatValue());
+		else if (theObj instanceof Float) {
+			return mValueFactory.createLiteral((Float) theObj);
 		}
-		else if (Date.class.isInstance(theObj)) {
-			return mValueFactory.createLiteral(Dates2.datetimeISO(Date.class.cast(theObj)), XMLSchema.DATETIME);
+		else if (theObj instanceof Date) {
+			return mValueFactory.createLiteral(Dates2.datetimeISO((Date) theObj), XMLSchema.DATETIME);
 		}
-		else if (String.class.isInstance(theObj)) {
+		else if (theObj instanceof String) {
 			if (theAnnotation != null && !theAnnotation.language().equals("")) {
-				return mValueFactory.createLiteral(String.class.cast(theObj), theAnnotation.language());
+				return mValueFactory.createLiteral((String) theObj, theAnnotation.language());
 			}
 			else {
-				return mValueFactory.createLiteral(String.class.cast(theObj), XMLSchema.STRING);
+				return mValueFactory.createLiteral((String) theObj, XMLSchema.STRING);
 			}
 		}
-		else if (Character.class.isInstance(theObj)) {
-			return mValueFactory.createLiteral(String.valueOf(Character.class.cast(theObj)), XMLSchema.STRING);
+		else if (theObj instanceof Character) {
+			return mValueFactory.createLiteral(String.valueOf((Character) theObj), XMLSchema.STRING);
 		}
-		else if (java.net.URI.class.isInstance(theObj)) {
+		else if (theObj instanceof java.net.URI) {
 			return mValueFactory.createLiteral(theObj.toString(), XMLSchema.ANYURI);
 		}
 
@@ -906,7 +904,7 @@ public final class RDFMapper {
 						continue;
 					}
 
-					aFunc.putString(aValue.toString(), Charsets.UTF_8);
+					aFunc.putString(aValue.toString(), StandardCharsets.UTF_8);
 				}
 				catch (Exception e) {
 					Throwables.propagateIfInstanceOf(e, RDFMappingException.class);
@@ -933,7 +931,7 @@ public final class RDFMapper {
 		else {
 			if (aId == null) {
 				aId = mValueFactory.createIRI(mDefaultNamespace + Hashing.md5().newHasher()
-				                                                         .putString(theT.toString(), Charsets.UTF_8)
+				                                                         .putString(theT.toString(), StandardCharsets.UTF_8)
 				                                                         .hash().toString());
 			}
 
@@ -1179,9 +1177,9 @@ public final class RDFMapper {
 			try {
 				// try creating a new instance.  this will work if they've specified a concrete type *and* it has a
 				// default constructor, which is true of all the core maps.
-				return (Map) aType.newInstance();
+				return (Map) aType.getDeclaredConstructor().newInstance();
 			}
-			catch (Throwable e) {
+			catch (Exception e) {
 				LOGGER.warn("{} uses a map type, but it cannot be instantiated, using a default LinkedHashMap", theDescriptor);
 			}
 
@@ -1209,9 +1207,9 @@ public final class RDFMapper {
 			try {
 				// try creating a new instance.  this will work if they've specified a concrete type *and* it has a
 				// default constructor, which is true of all the core collections.
-				return (Collection) aType.newInstance();
+				return (Collection) aType.getDeclaredConstructor().newInstance();
 			}
-			catch (Throwable e) {
+			catch (Exception e) {
 				if (List.class.isAssignableFrom(aType)) {
 					return Lists.newArrayList();
 				}
@@ -1228,7 +1226,7 @@ public final class RDFMapper {
 				}
 				else {
 					// what else could there be?
-					throw new RuntimeException("Unknown or unsupported collection type for a field: " + aType);
+					throw new UnkonwnTypeCollectionException("Unknown or unsupported collection type for a field: " + aType);
 				}
 			}
 		}
