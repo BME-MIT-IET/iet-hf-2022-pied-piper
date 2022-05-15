@@ -15,7 +15,7 @@ import org.openrdf.model.util.Models;
 
 import static org.junit.Assert.*;
 
-public class Stepdefs {
+public class IsomorphicnessStepdefs {
     RDFMapperTests.ClassWithObjectList aObj;
     RDFMapperTests.ClassWithObjectList aOtherObj;
     Model aGraph;
