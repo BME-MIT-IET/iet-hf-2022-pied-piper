@@ -1,7 +1,12 @@
-Feature: Is it Friday yet?
-  Everybody wants to know when it's Friday
+Feature: Are they isomorphic?
+  It is important to know if the same graph is written twice. They are still isomorphic.
 
-  Scenario: Sunday isn't Friday
-    Given today is Sunday
-    When I ask whether it's Friday yet
-    Then I should be told "Nope"
+  Scenario: They are isomorphic
+    Given there is a set of data
+    When I ask whether two graphs from the same data are isomorphic
+    Then I should be told they are isomorphic
+
+  Scenario: They are not isomorphic
+    Given there are two sets of data
+    When I ask whether two graphs from different data are isomorphic
+    Then I should be told they are not isomorphic
