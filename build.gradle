@@ -5,6 +5,11 @@ apply plugin: "maven"
 wrapper{
 	gradleVersion = '5.0'
 	distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
+
+}
+
+dependencies {
+	implementation 'org.jsmart:zerocode-tdd:1.3.28'
 }
 
 sourceSets {
@@ -68,4 +73,9 @@ dependencies {
 
 tasks.withType(Test) {
 	systemProperties = System.getProperties()
+}
+
+task testJar(type: Jar) {
+	classifier = 'tests'
+	from sourceSets.test.output
 }
