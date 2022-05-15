@@ -62,14 +62,14 @@ public class LabelStepdefs {
     }
 
     @When("I ask whether it has the label 'numberOfEmployees' again")
-    public void createSameObjectFromCode() {
+    public void getLabel2() {
 
         aStatement = aGraph.stream().filter(Statements.predicateIs(SimpleValueFactory.getInstance().createIRI(RDFMapper.DEFAULT_NAMESPACE + "numberOfEmployees"))).findFirst();
         aResult= (Literal) aStatement.get().getObject();
     }
 
     @Then("I should be told they have {int} employees")
-    public void checkIfTheyAreEqual(int employees) {
+    public void checkLabel2(int employees) {
         assertTrue("should have found the triple", aStatement.isPresent());
         assertEquals(XMLSchema.INTEGER, aResult.getDatatype());
         assertEquals(String.valueOf(employees), aResult.getLabel());
