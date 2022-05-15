@@ -15,7 +15,6 @@ import org.openrdf.model.util.Models;
 
 import static org.junit.Assert.*;
 
-@RunWith(Cucumber.class)
 public class Stepdefs {
     RDFMapperTests.ClassWithObjectList aObj;
     RDFMapperTests.ClassWithObjectList aOtherObj;
