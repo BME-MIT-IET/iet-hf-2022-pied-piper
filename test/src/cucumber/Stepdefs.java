@@ -7,12 +7,15 @@ import com.google.common.collect.Sets;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
+import io.cucumber.junit.Cucumber;
+import org.junit.runner.RunWith;
 import org.openrdf.model.Model;
 import org.openrdf.model.impl.SimpleValueFactory;
 import org.openrdf.model.util.Models;
 
 import static org.junit.Assert.*;
 
+@RunWith(Cucumber.class)
 public class Stepdefs {
     RDFMapperTests.ClassWithObjectList aObj;
     RDFMapperTests.ClassWithObjectList aOtherObj;
