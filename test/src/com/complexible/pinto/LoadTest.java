@@ -5,6 +5,7 @@ import org.jsmart.zerocode.core.domain.TestMapping;
 import org.jsmart.zerocode.core.domain.TestMappings;
 import org.jsmart.zerocode.core.runner.parallel.ZeroCodeLoadRunner;
 import org.jsmart.zerocode.core.runner.parallel.ZeroCodeMultiLoadRunner;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 //test that will each spawned user execute
@@ -34,5 +35,6 @@ import org.junit.runner.RunWith;
 
 //run it with zero code load runner
 @RunWith(ZeroCodeMultiLoadRunner.class)
+@Ignore
 public class LoadTest {
 }
