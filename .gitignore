@@ -5,6 +5,7 @@ build
 *.iml
 *.ipr
 *.iws
+target
 
 gradle.properties
 

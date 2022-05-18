@@ -30,8 +30,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.hash.Hashing;
+import org.jsmart.zerocode.core.domain.LoadWith;
+import org.jsmart.zerocode.core.domain.TargetEnv;
+import org.jsmart.zerocode.core.domain.TestMapping;
+import org.jsmart.zerocode.core.runner.ZeroCodeUnitRunner;
+import org.jsmart.zerocode.core.runner.parallel.ZeroCodeLoadRunner;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
@@ -61,6 +67,10 @@ import static org.junit.Assert.*;
  *
  * @author Michael Grove
  */
+//annotation that will capture response time and success status of every request
+@RunWith(ZeroCodeUnitRunner.class)
+//used to disable html reoprt from being built
+@TargetEnv("my_load_config.properties")
 public class RDFMapperTests {
 	@Test(expected = UnidentifiableObjectException.class)
 	public void testUnidentifiable() throws Exception {
