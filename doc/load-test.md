@@ -1,5 +1,8 @@
 ## Load tests using zerocode performance-test tool
 
+Több performance test eszközt megvizsgáltunk pl: JMeter és más opensource eszközöket, a feladat megoldására végül a ZeroCode open-source projektet használtuk, mivel a legtöbb ilyen tool elsősorban hálózati stress testre lett kifejlesztve.
+Ebben a projektben lehetőség van több szálon függvény hívásokat szimulálni.
+
 Running on 100 threads, 20 loops
 
 https://github.com/authorjapps/performance-tests
