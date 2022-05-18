@@ -52,6 +52,21 @@ repositories {
 		url "http://maven.stardog.com"
 	}
 }
+task cucumber() {
+	dependsOn assemble, testClasses
+	doLast {
+		javaexec {
+			main = "io.cucumber.core.cli.Main"
+			classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+			args = ['--plugin', 'pretty','--glue', 'cucumber', 'test/resources']
+		}
+	}
+}
+configurations {
+	cucumberRuntime {
+		extendsFrom testImplementation
+	}
+}
 
 dependencies {
 	compile (group: "com.google.guava", name: "guava", version: "18.0") {
@@ -71,6 +86,10 @@ dependencies {
 
 	compile "org.slf4j:slf4j-api:1.7.7"
 	compile "org.slf4j:slf4j-jdk14:1.7.7"
+	testImplementation 'junit:junit:4.13'
+	testImplementation 'io.cucumber:cucumber-java:6.6.1'
+	testImplementation 'io.cucumber:cucumber-junit:6.6.1'
+	testImplementation 'io.rest-assured:rest-assured:4.3.3'
 
 	testCompile 'junit:junit:4.11'
 }
