@@ -169,12 +169,6 @@ to serialize as RDF, or accept as RDF, that's normally done with a custom implem
 `MessageBodyReader`/`MessageBodyWriter`.  But that implementation is not straight-forward with the heavier-weight
 frameworks.  With Pinto, it's a single line of code.
 
-A projekt célja
-
-A Pinto egy egyszerű és könnyen használható annotáció és egyéb konfigurációk nélkül használható java framework, aminek segítségevel java bean-eket lehet rdf-é alakítani. Valamint rdf-et java bean-ekké.
-
-Nem szükséges az annotációk használata, de van rá lehetőség, hogy kontroláljuk az objektumok szerializálását. Konfigurációs paraméterek megadásával is további lehetőségeket biztosít a könyvtár a szerializáció módjának pontosítására.
-
 ## Load tests using zerocode performance-test tool
 
 Running on 100 threads, 20 loops
